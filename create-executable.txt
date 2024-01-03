@@ -1,0 +1,3 @@
+# PyInstaller aufrufen
+
+pyinstaller --clean flightlog.py
