@@ -6,9 +6,6 @@ Created on Sat Mar 21 14:03:50 2020
 @author: fabi
 """
 
-# TODO graphics
-# TODO settings (offset values for sums, etc.)
-
 import sqlite3 as sq
 import datetime as dt
 import sys
@@ -2184,7 +2181,6 @@ class CmdApp(cmd2.Cmd):
     @cmd2.with_argparser(parser_update_airports)
     def do_update_airports(self, args):
         """Update airport database from OurAirports.com"""
-        # TODO use temporary file
         # Download csv file from OurAirports.com
         with open("airports.csv", "wb") as local_file:
             self.poutput("Download airport database.")
