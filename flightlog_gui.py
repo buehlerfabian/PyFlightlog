@@ -86,11 +86,6 @@ class EditRatingWindow:
 
         self.date_edit_list[0].setFocus()  # set focus to the first input field
 
-        # TODO change to LineEdit + Validator + perhaps CalendarPopup
-        # TODO add rating
-        # TODO delete rating
-        # TODO add additional fields
-
         self.window.show()
         self.app.exec_()
 
