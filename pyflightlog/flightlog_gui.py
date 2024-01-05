@@ -2,6 +2,7 @@ from PySide2.QtSql import QSqlDatabase, QSqlTableModel
 from PySide2.QtWidgets import QApplication, QDateEdit
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import QFile, Qt, QDateTime
+import os
 
 
 class QtGui:
@@ -25,7 +26,9 @@ class QtGui:
 class EditRatingWindow:
     def __init__(self, app):
         self.app = app
-        ui_file = QFile("edit_ratings.ui")
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        filename = os.path.join(current_dir, "edit_ratings.ui")
+        ui_file = QFile(filename)
         ui_file.open(QFile.ReadOnly)
 
         loader = QUiLoader()
@@ -93,7 +96,9 @@ class EditRatingWindow:
 class EditSettingsWindow:
     def __init__(self, app):
         self.app = app
-        ui_file = QFile("edit_settings.ui")
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        filename = os.path.join(current_dir, "edit_settings.ui")
+        ui_file = QFile(filename)
         ui_file.open(QFile.ReadOnly)
 
         loader = QUiLoader()

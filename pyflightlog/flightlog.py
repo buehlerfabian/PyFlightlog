@@ -21,7 +21,7 @@ import argparse
 
 import colorama as col
 
-from flightlog_gui import QtGui
+from pyflightlog.flightlog_gui import QtGui
 
 
 def to_datetime(diff):
@@ -2253,6 +2253,32 @@ class CmdApp(cmd2.Cmd):
 
 
 def main():
+    # Determine database name from command line argument
+    if len(sys.argv) < 2:
+        print("usage: flightlog [filename]")
+        sys.exit(1)
+    global db_name
+    db_name = sys.argv[1]
+    del sys.argv[1:]
+
+    # create database connection
+    global con
+    con = create_connection(db_name)
+    con.row_factory = sq.Row
+
+    # create airport database connection
+    # TODO good location for airports.db file?
+    global con_ap
+    con_ap = create_connection("airports.db")
+    con_ap.row_factory = sq.Row
+
+    # check if all tables exists and create them if necessary
+    create_tables()
+
+    # Prepare Qt Gui
+    global qt_gui
+    qt_gui = QtGui(db_name)
+
     # start cmd2 command loop
     CmdApp().cmdloop()
 
@@ -2262,26 +2288,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # Determine database name from command line argument
-    if len(sys.argv) < 2:
-        print("usage: flightlog [filename]")
-        sys.exit(1)
-    db_name = sys.argv[1]
-    del sys.argv[1:]
-
-    # create database connection
-    con = create_connection(db_name)
-    con.row_factory = sq.Row
-
-    # create airport database connection
-    # TODO good location for airports.db file?
-    con_ap = create_connection("airports.db")
-    con_ap.row_factory = sq.Row
-
-    # check if all tables exists and create them if necessary
-    create_tables()
-
-    # Prepare Qt Gui
-    qt_gui = QtGui(db_name)
-
     main()
