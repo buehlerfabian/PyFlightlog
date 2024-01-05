@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "flightlog"
+name = "pyflightlog"
 version = "0.1.0"
 description = ""
 authors = ["Fabian Bühler <buehler.fabian@gmx.de>"]
@@ -21,3 +21,7 @@ pytest = "^7.4.4"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+flog = "pyflightlog.flightlog:main"
+
