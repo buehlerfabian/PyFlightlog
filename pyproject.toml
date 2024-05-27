@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyflightlog"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Fabian Bühler <buehler.fabian@gmx.de>"]
 readme = "README.md"
