@@ -1,7 +1,7 @@
-from PySide2.QtSql import QSqlDatabase, QSqlTableModel
-from PySide2.QtWidgets import QApplication, QDateEdit
-from PySide2.QtUiTools import QUiLoader
-from PySide2.QtCore import QFile, Qt, QDateTime
+from PySide6.QtSql import QSqlDatabase, QSqlTableModel
+from PySide6.QtWidgets import QApplication, QDateEdit
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile, Qt, QDateTime
 import os
 
 
