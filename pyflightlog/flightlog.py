@@ -998,6 +998,160 @@ class CmdApp(cmd2.Cmd):
                     )
                 )
 
+    # parser for export command
+    parser_export = argparse.ArgumentParser()
+
+    parser_export.add_argument(
+        "file_name",
+        help="name of the file to export the data to"
+    )
+
+    parser_export.add_argument(
+        "start_date",
+        help="start date as yyyy or mm.yyyy or dd.mm.yyyy or "
+        "relative as 'dNNN', 'mNN', 'yNN' "
+        "where N are digits",
+    )
+
+    parser_export.add_argument(
+        "end_date",
+        nargs="?",
+        help="end date as yyyy or mm.yyyy or dd.mm.yyyy "
+        "or 'today'; in case of "
+        "relative start date dd.mm.yyyy is mandatory",
+    )
+    parser_export.add_argument(
+        "-dep", "--departure", nargs=1, dest="apdep",
+        help="filter airport of departure"
+    )
+    parser_export.add_argument(
+        "-dest",
+        "--destination",
+        nargs=1,
+        dest="apdest",
+        help="filter airport of destination",
+    )
+    parser_export.add_argument(
+        "-a", "--aircraft", nargs=1, dest="acft",
+        help="filter aircraft registration"
+    )
+    parser_export.add_argument(
+        "-t", "--type", nargs=1, dest="type", help="filter aircraft type"
+    )
+    parser_export.add_argument(
+        "-c", "--class", nargs=1, dest="aclass", help="filter aircraft class"
+    )
+    parser_export.add_argument("-p", "--pic", nargs=1, dest="pic",
+                               help="filter PIC")
+    parser_export.add_argument(
+        "-pf",
+        "--pilot-function",
+        nargs=1,
+        dest="pfct",
+        help="filter pilot function, i.e. PIC, Dual",
+    )
+    parser_export.add_argument(
+        "-s", "--student", dest="stud", nargs=1, help="filter student"
+    )
+    parser_export.add_argument(
+        "-g", "--guests", dest="guests", nargs=1, help="filter guests"
+    )
+    parser_export.add_argument(
+        "-r", "--remarks", dest="rmk", nargs=1, help="filter remarks"
+    )
+    parser_export.add_argument(
+        "-fi",
+        "--flight-instruction",
+        dest="fi",
+        action="store_true",
+        help="filter pilot function to FI",
+    )
+
+    @cmd2.with_argparser(parser_export)
+    def do_export(self, args):
+        """Export all flights in a given date range in csv format."""
+        start_date, end_date = self.parse_dateparams(args.start_date,
+                                                     args.end_date)
+
+        # retrieve flights from database
+        cur = con.cursor()
+
+        # parse filter options and set conditions accordingly
+        conditions = ""
+        if args.apdep:
+            conditions += f"and departureId='{args.apdep[0]}' "
+        if args.apdest:
+            conditions += f"and destinationId='{args.apdest[0]}' "
+        if args.acft:
+            conditions += f"and registration='{args.acft[0]}' "
+        if args.type:
+            conditions += f"and type='{args.type[0]}' "
+        if args.aclass:
+            conditions += f"and flightTimeClass='{args.aclass[0]}' "
+        if args.pic:
+            conditions += f"and picName='{args.pic[0]}' "
+        if args.pfct:
+            conditions += f"and pilotFunction='{args.pfct[0]}' "
+        if args.stud:
+            conditions += f"and studentName like '%{args.stud[0]}%' "
+        if args.guests:
+            conditions += f"and guests like '%{args.guests[0]}%' "
+        if args.rmk:
+            conditions += f"and remarks like '%{args.rmk[0]}%' "
+        if args.fi:
+            conditions += "and pilotFunction='FI'"
+
+        if conditions == "":
+            conditions = "and True"  # no additional condition was given
+
+        query_string = (
+            "select flightdate, type, registration, "
+            "departureId, destinationId, offblock, "
+            "onblock, startTime, landingTime, landingsDay, "
+            "landingsNight, landingsDay+landingsNight, "
+            "picName,pilotFunction, flightTimeNight, flightTimeIFR, "
+            "flightTimeClass, studentName, guests, "
+            "remarks from flights where flightdate >= ? and flightdate < ? "
+            + conditions
+            + " order by flightdate asc, offblock asc"
+        )
+
+        cur.execute(
+            query_string,
+            (start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")),
+        )
+
+        filename = args.file_name
+        if not filename.endswith(".csv"):
+            filename += ".csv"
+
+        # Export flights to csv file
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([
+                "flightdate", "type", "registration", "departureId",
+                "destinationId", "offblock", "onblock", "startTime",
+                "landingTime", "landingsDay", "landingsNight", "picName",
+                "pilotFunction", "flightTimeNight", "flightTimeIFR",
+                "flightTimeClass", "studentName", "guests", "remarks"
+            ])
+            for result in cur:
+                writer.writerow([
+                    result["flightdate"], result["type"],
+                    result["registration"],
+                    result["departureId"], result["destinationId"],
+                    result["offblock"],
+                    result["onblock"], result["startTime"],
+                    result["landingTime"],
+                    result["landingsDay"], result["landingsNight"],
+                    result["picName"],
+                    result["pilotFunction"], result["flightTimeNight"],
+                    result["flightTimeIFR"],
+                    result["flightTimeClass"], result["studentName"],
+                    result["guests"],
+                    result["remarks"]
+                ])
+
     # parser for show command
     parser_show = argparse.ArgumentParser()
     parser_show.add_argument(
