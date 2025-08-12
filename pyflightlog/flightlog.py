@@ -32,21 +32,18 @@ def parse_dateparam(cmd, datestring):
     """Returns a datetime object"""
     # split given string at every "."
     if datestring is None:
-        return dt.datetime.today().replace(hour=0, minute=0, second=0,
-                                           microsecond=0)
+        return dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
     else:
         splitstring = datestring.split(".")
 
     # check if number of parts is correct
     if len(splitstring) != 3:
-        cmd.perror("Start date must be given in the following"
-                   " format: dd.mm.yyyy")
+        cmd.perror("Start date must be given in the following" " format: dd.mm.yyyy")
         return None
 
     # parse argument and create datetime object
     date1 = dt.datetime.strptime(
-        splitstring[2] + "-" + splitstring[1] + "-" +
-        splitstring[0], "%Y-%m-%d"
+        splitstring[2] + "-" + splitstring[1] + "-" + splitstring[0], "%Y-%m-%d"
     )
 
     return date1
@@ -66,8 +63,7 @@ def create_tables():
 
     # check if tables exist
     cur.execute(
-        "SELECT count(name) FROM sqlite_master WHERE type='table' "
-        "AND name='flights'"
+        "SELECT count(name) FROM sqlite_master WHERE type='table' " "AND name='flights'"
     )
     if cur.fetchone()[0] == 1:
         flights_db = True
@@ -84,8 +80,7 @@ def create_tables():
         aircrafts_db = False
 
     cur.execute(
-        "SELECT count(name) FROM sqlite_master WHERE type='table' "
-        "AND name='ratings'"
+        "SELECT count(name) FROM sqlite_master WHERE type='table' " "AND name='ratings'"
     )
     if cur.fetchone()[0] == 1:
         ratings_db = True
@@ -143,16 +138,12 @@ def create_tables():
         )
 
     if not settings_db:
-        cur.execute("create table settings (key string primary key, "
-                    "value string)")
-        cur.execute("insert into settings values (?, ?)",
-                    ("default_PIC", "Bühler"))
+        cur.execute("create table settings (key string primary key, " "value string)")
+        cur.execute("insert into settings values (?, ?)", ("default_PIC", "Bühler"))
         cur.execute(
-            "insert into settings values (?, ?)",
-            ("default_registration", "DESFM")
+            "insert into settings values (?, ?)", ("default_registration", "DESFM")
         )
-        cur.execute("insert into settings values (?, ?)",
-                    ("default_airport", "EDTM"))
+        cur.execute("insert into settings values (?, ?)", ("default_airport", "EDTM"))
 
     if not airports_db:
         cur_ap.execute(
@@ -221,17 +212,14 @@ def add_flight(
 
     # get aircraft type and class from aircraft database
 
-    cur.execute("select * from aircrafts where registration=?",
-                (registration,))
+    cur.execute("select * from aircrafts where registration=?", (registration,))
     result = cur.fetchone()
 
     # Aircraft not found?
     if result is None:
         print(
-            col.Fore.RED
-            + f"Aircraft not found: {registration}. Check callsign "
-            "and add aircraft if necessary."
-            + col.Style.RESET_ALL
+            col.Fore.RED + f"Aircraft not found: {registration}. Check callsign "
+            "and add aircraft if necessary." + col.Style.RESET_ALL
         )
         return
 
@@ -354,8 +342,7 @@ class CmdApp(cmd2.Cmd):
         del cmd2.Cmd.do_shell
         del cmd2.Cmd.do_alias
         self.prompt = (
-            col.Fore.CYAN + col.Style.BRIGHT +
-            db_name + " > " + col.Style.RESET_ALL
+            col.Fore.CYAN + col.Style.BRIGHT + db_name + " > " + col.Style.RESET_ALL
         )
 
         # noinspection PyTypeChecker
@@ -395,14 +382,13 @@ class CmdApp(cmd2.Cmd):
                 # check if number of parts is correct
                 if len(splitstring) != 3:
                     self.perror(
-                        "End date must be given in the "
-                        "following format: dd.mm.yyyy"
+                        "End date must be given in the " "following format: dd.mm.yyyy"
                     )
                     return None
 
                 end_date = dt.datetime.strptime(
-                    splitstring[2] + "-" + splitstring[1] + "-" +
-                    splitstring[0], "%Y-%m-%d",
+                    splitstring[2] + "-" + splitstring[1] + "-" + splitstring[0],
+                    "%Y-%m-%d",
                 )
                 start_date = end_date
                 end_date = end_date + relativedelta(days=1)
@@ -442,8 +428,8 @@ class CmdApp(cmd2.Cmd):
 
             if len(splitstring) == 3:
                 start_date = dt.datetime.strptime(
-                    splitstring[2] + "-" + splitstring[1] + "-" +
-                    splitstring[0], "%Y-%m-%d",
+                    splitstring[2] + "-" + splitstring[1] + "-" + splitstring[0],
+                    "%Y-%m-%d",
                 )
                 end_date = start_date + relativedelta(days=1)
 
@@ -512,8 +498,7 @@ class CmdApp(cmd2.Cmd):
         help="specify date of flight in format dd.mm.yyyy",
     )
     parser_add.add_argument(
-        "-a", "--aircraft", nargs=1, dest="acft",
-        help="specify aicraft by registration"
+        "-a", "--aircraft", nargs=1, dest="acft", help="specify aicraft by registration"
     )
     parser_add.add_argument(
         "-dep",
@@ -588,13 +573,19 @@ class CmdApp(cmd2.Cmd):
         help="set pilot function to FI, argument sets student",
     )
     parser_add.add_argument(
+        "-fe",
+        "--flight-exam",
+        dest="fe",
+        nargs=1,
+        help="set pilot function to FE, argument sets candidate",
+    )
+    parser_add.add_argument(
         "--night-time", nargs=1, dest="ftn", help="specify night flight time"
     )
     parser_add.add_argument(
         "--ifr-time", nargs=1, dest="ftifr", help="specify ifr flight time"
     )
-    parser_add.add_argument("--student", dest="stud", nargs=1,
-                            help="specify student")
+    parser_add.add_argument("--student", dest="stud", nargs=1, help="specify student")
 
     @cmd2.with_argparser(parser_add)
     def do_add(self, args):
@@ -660,14 +651,12 @@ class CmdApp(cmd2.Cmd):
         # option --night-time specified
         ftn_string = None
         if args.ftn:
-            ftn_string = dt.datetime.strptime(args.ftn[0],
-                                              "%H%M").strftime("%H:%M")
+            ftn_string = dt.datetime.strptime(args.ftn[0], "%H%M").strftime("%H:%M")
 
         # option --ifr-time specified
         ftifr_string = None
         if args.ftifr:
-            ftifr_string = dt.datetime.strptime(args.ftifr[0],
-                                                "%H%M").strftime("%H:%M")
+            ftifr_string = dt.datetime.strptime(args.ftifr[0], "%H%M").strftime("%H:%M")
 
         # option --student specified
         stud = None
@@ -708,11 +697,37 @@ class CmdApp(cmd2.Cmd):
                 return
             if args.pic:
                 self.perror(
-                    "Options --flight_instruction and --pic cannot "
+                    "Options --flight_instruction and --pic cannot " "be used together."
+                )
+            if args.fe:
+                self.perror(
+                    "Options --flight_instruction and --flight_exam cannot "
                     "be used together."
                 )
+                return
             pfct = "FI"
             stud = args.fi[0]
+
+        # option --flight_exam specified
+        if args.fe:
+            if args.pfct:
+                self.perror(
+                    "Options --flight_exam and --pilot_function cannot"
+                    " be used together."
+                )
+                return
+            if args.pic:
+                self.perror(
+                    "Options --flight_exam and --pic cannot " "be used together."
+                )
+            if args.fi:
+                self.perror(
+                    "Options --flight_instruction and --flight_exam cannot "
+                    "be used together."
+                )
+                return
+            pfct = "FE"
+            stud = args.fe[0]
 
         # add flight to database
         add_flight(
@@ -744,8 +759,7 @@ class CmdApp(cmd2.Cmd):
         "num", nargs="?", type=int, default=5, help="Show last num flights."
     )
     parser_last.add_argument(
-        "-l", "--long", action="store_true", dest="long",
-        help="show all data fields"
+        "-l", "--long", action="store_true", dest="long", help="show all data fields"
     )
 
     @cmd2.with_argparser(parser_last)
@@ -766,8 +780,7 @@ class CmdApp(cmd2.Cmd):
         )
         if not args.long:
             for result in cur:
-                date = dt.datetime.strptime(result["flightdate"],
-                                            "%Y-%m-%d").strftime(
+                date = dt.datetime.strptime(result["flightdate"], "%Y-%m-%d").strftime(
                     "%d.%m.%Y"
                 )
                 self.poutput(
@@ -783,8 +796,7 @@ class CmdApp(cmd2.Cmd):
                 )
         else:
             for result in cur:
-                date = dt.datetime.strptime(result["flightdate"],
-                                            "%Y-%m-%d").strftime(
+                date = dt.datetime.strptime(result["flightdate"], "%Y-%m-%d").strftime(
                     "%d.%m.%Y"
                 )
                 self.poutput(
@@ -824,8 +836,7 @@ class CmdApp(cmd2.Cmd):
         """Adds an aircraft."""
         cur = con.cursor()
         cur.execute(
-            "insert into aircrafts (registration, type, class) values"
-            " (?, ?, ?)",
+            "insert into aircrafts (registration, type, class) values" " (?, ?, ?)",
             (args.registration, args.type, args.acft_class),
         )
         con.commit()
@@ -848,12 +859,10 @@ class CmdApp(cmd2.Cmd):
         "relative start date dd.mm.yyyy is mandatory",
     )
     parser_ls.add_argument(
-        "-l", "--long", action="store_true", dest="long",
-        help="show all data fields"
+        "-l", "--long", action="store_true", dest="long", help="show all data fields"
     )
     parser_ls.add_argument(
-        "-dep", "--departure", nargs=1, dest="apdep",
-        help="filter airport of departure"
+        "-dep", "--departure", nargs=1, dest="apdep", help="filter airport of departure"
     )
     parser_ls.add_argument(
         "-dest",
@@ -863,8 +872,7 @@ class CmdApp(cmd2.Cmd):
         help="filter airport of destination",
     )
     parser_ls.add_argument(
-        "-a", "--aircraft", nargs=1, dest="acft",
-        help="filter aircraft registration"
+        "-a", "--aircraft", nargs=1, dest="acft", help="filter aircraft registration"
     )
     parser_ls.add_argument(
         "-t", "--type", nargs=1, dest="type", help="filter aircraft type"
@@ -872,8 +880,7 @@ class CmdApp(cmd2.Cmd):
     parser_ls.add_argument(
         "-c", "--class", nargs=1, dest="aclass", help="filter aircraft class"
     )
-    parser_ls.add_argument("-p", "--pic", nargs=1, dest="pic",
-                           help="filter PIC")
+    parser_ls.add_argument("-p", "--pic", nargs=1, dest="pic", help="filter PIC")
     parser_ls.add_argument(
         "-pf",
         "--pilot-function",
@@ -897,12 +904,18 @@ class CmdApp(cmd2.Cmd):
         action="store_true",
         help="filter pilot function to FI",
     )
+    parser_ls.add_argument(
+        "-fe",
+        "--flight-exam",
+        dest="fe",
+        action="store_true",
+        help="filter pilot function to FE",
+    )
 
     @cmd2.with_argparser(parser_ls)
     def do_ls(self, args):
         """Lists all flights in a given date range."""
-        start_date, end_date = self.parse_dateparams(args.start_date,
-                                                     args.end_date)
+        start_date, end_date = self.parse_dateparams(args.start_date, args.end_date)
 
         # retrieve flights from database
         cur = con.cursor()
@@ -931,6 +944,8 @@ class CmdApp(cmd2.Cmd):
             conditions += f"and remarks like '%{args.rmk[0]}%' "
         if args.fi:
             conditions += "and pilotFunction='FI'"
+        if args.fe:
+            conditions += "and pilotFunction='FE'"
 
         if conditions == "":
             conditions = "and True"  # no additional condition was given
@@ -955,8 +970,7 @@ class CmdApp(cmd2.Cmd):
         # print results
         if not args.long:
             for result in cur:
-                date = dt.datetime.strptime(result["flightdate"],
-                                            "%Y-%m-%d").strftime(
+                date = dt.datetime.strptime(result["flightdate"], "%Y-%m-%d").strftime(
                     "%d.%m.%Y"
                 )
                 self.poutput(
@@ -972,8 +986,7 @@ class CmdApp(cmd2.Cmd):
                 )
         else:
             for result in cur:
-                date = dt.datetime.strptime(result["flightdate"],
-                                            "%Y-%m-%d").strftime(
+                date = dt.datetime.strptime(result["flightdate"], "%Y-%m-%d").strftime(
                     "%d.%m.%Y"
                 )
                 self.poutput(
@@ -1002,8 +1015,7 @@ class CmdApp(cmd2.Cmd):
     parser_export = argparse.ArgumentParser()
 
     parser_export.add_argument(
-        "file_name",
-        help="name of the file to export the data to"
+        "file_name", help="name of the file to export the data to"
     )
 
     parser_export.add_argument(
@@ -1021,8 +1033,7 @@ class CmdApp(cmd2.Cmd):
         "relative start date dd.mm.yyyy is mandatory",
     )
     parser_export.add_argument(
-        "-dep", "--departure", nargs=1, dest="apdep",
-        help="filter airport of departure"
+        "-dep", "--departure", nargs=1, dest="apdep", help="filter airport of departure"
     )
     parser_export.add_argument(
         "-dest",
@@ -1032,8 +1043,7 @@ class CmdApp(cmd2.Cmd):
         help="filter airport of destination",
     )
     parser_export.add_argument(
-        "-a", "--aircraft", nargs=1, dest="acft",
-        help="filter aircraft registration"
+        "-a", "--aircraft", nargs=1, dest="acft", help="filter aircraft registration"
     )
     parser_export.add_argument(
         "-t", "--type", nargs=1, dest="type", help="filter aircraft type"
@@ -1041,8 +1051,7 @@ class CmdApp(cmd2.Cmd):
     parser_export.add_argument(
         "-c", "--class", nargs=1, dest="aclass", help="filter aircraft class"
     )
-    parser_export.add_argument("-p", "--pic", nargs=1, dest="pic",
-                               help="filter PIC")
+    parser_export.add_argument("-p", "--pic", nargs=1, dest="pic", help="filter PIC")
     parser_export.add_argument(
         "-pf",
         "--pilot-function",
@@ -1070,8 +1079,7 @@ class CmdApp(cmd2.Cmd):
     @cmd2.with_argparser(parser_export)
     def do_export(self, args):
         """Export all flights in a given date range in csv format."""
-        start_date, end_date = self.parse_dateparams(args.start_date,
-                                                     args.end_date)
+        start_date, end_date = self.parse_dateparams(args.start_date, args.end_date)
 
         # retrieve flights from database
         cur = con.cursor()
@@ -1126,31 +1134,55 @@ class CmdApp(cmd2.Cmd):
             filename += ".csv"
 
         # Export flights to csv file
-        with open(filename, mode='w', newline='') as file:
+        with open(filename, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow([
-                "flightdate", "type", "registration", "departureId",
-                "destinationId", "offblock", "onblock", "startTime",
-                "landingTime", "landingsDay", "landingsNight", "picName",
-                "pilotFunction", "flightTimeNight", "flightTimeIFR",
-                "flightTimeClass", "studentName", "guests", "remarks"
-            ])
+            writer.writerow(
+                [
+                    "flightdate",
+                    "type",
+                    "registration",
+                    "departureId",
+                    "destinationId",
+                    "offblock",
+                    "onblock",
+                    "startTime",
+                    "landingTime",
+                    "landingsDay",
+                    "landingsNight",
+                    "picName",
+                    "pilotFunction",
+                    "flightTimeNight",
+                    "flightTimeIFR",
+                    "flightTimeClass",
+                    "studentName",
+                    "guests",
+                    "remarks",
+                ]
+            )
             for result in cur:
-                writer.writerow([
-                    result["flightdate"], result["type"],
-                    result["registration"],
-                    result["departureId"], result["destinationId"],
-                    result["offblock"],
-                    result["onblock"], result["startTime"],
-                    result["landingTime"],
-                    result["landingsDay"], result["landingsNight"],
-                    result["picName"],
-                    result["pilotFunction"], result["flightTimeNight"],
-                    result["flightTimeIFR"],
-                    result["flightTimeClass"], result["studentName"],
-                    result["guests"],
-                    result["remarks"]
-                ])
+                writer.writerow(
+                    [
+                        result["flightdate"],
+                        result["type"],
+                        result["registration"],
+                        result["departureId"],
+                        result["destinationId"],
+                        result["offblock"],
+                        result["onblock"],
+                        result["startTime"],
+                        result["landingTime"],
+                        result["landingsDay"],
+                        result["landingsNight"],
+                        result["picName"],
+                        result["pilotFunction"],
+                        result["flightTimeNight"],
+                        result["flightTimeIFR"],
+                        result["flightTimeClass"],
+                        result["studentName"],
+                        result["guests"],
+                        result["remarks"],
+                    ]
+                )
 
     # parser for show command
     parser_show = argparse.ArgumentParser()
@@ -1189,8 +1221,7 @@ class CmdApp(cmd2.Cmd):
         cur = con.cursor()  # get a shiny new cursor
 
         for result in res:
-            date = dt.datetime.strptime(result["flightdate"],
-                                        "%Y-%m-%d").strftime(
+            date = dt.datetime.strptime(result["flightdate"], "%Y-%m-%d").strftime(
                 "%d.%m.%Y"
             )
             self.poutput()
@@ -1338,8 +1369,7 @@ class CmdApp(cmd2.Cmd):
                 ans = self.read_input("Delete this flight (y/N)? ")
                 if ans == "y" or ans == "Y":
                     idn = result["id"]
-                    cur.execute("delete from flights where id=? limit 1",
-                                (int(idn),))
+                    cur.execute("delete from flights where id=? limit 1", (int(idn),))
                     con.commit()
                     self.poutput(f"Flight Nr. {int(idn)} has been deleted.")
 
@@ -1371,12 +1401,10 @@ class CmdApp(cmd2.Cmd):
         "relative start date dd.mm.yyyy is mandatory",
     )
     parser_sum.add_argument(
-        "-l", "--long", action="store_true", dest="long",
-        help="show all data fields"
+        "-l", "--long", action="store_true", dest="long", help="show all data fields"
     )
     parser_sum.add_argument(
-        "-dep", "--departure", nargs=1, dest="apdep",
-        help="filter airport of departure"
+        "-dep", "--departure", nargs=1, dest="apdep", help="filter airport of departure"
     )
     parser_sum.add_argument(
         "-dest",
@@ -1386,8 +1414,7 @@ class CmdApp(cmd2.Cmd):
         help="filter airport of destination",
     )
     parser_sum.add_argument(
-        "-a", "--aircraft", nargs=1, dest="acft",
-        help="filter aircraft registration"
+        "-a", "--aircraft", nargs=1, dest="acft", help="filter aircraft registration"
     )
     parser_sum.add_argument(
         "-t", "--type", nargs=1, dest="type", help="filter aircraft type"
@@ -1395,8 +1422,7 @@ class CmdApp(cmd2.Cmd):
     parser_sum.add_argument(
         "-c", "--class", nargs=1, dest="aclass", help="filter aircraft class"
     )
-    parser_sum.add_argument("-p", "--pic", nargs=1,
-                            dest="pic", help="filter PIC")
+    parser_sum.add_argument("-p", "--pic", nargs=1, dest="pic", help="filter PIC")
     parser_sum.add_argument(
         "-pf",
         "--pilot-function",
@@ -1424,8 +1450,7 @@ class CmdApp(cmd2.Cmd):
     @cmd2.with_argparser(parser_sum)
     def do_sum(self, args):
         """Calculates sums of times and landings in given date range."""
-        start_date, end_date = self.parse_dateparams(args.start_date,
-                                                     args.end_date)
+        start_date, end_date = self.parse_dateparams(args.start_date, args.end_date)
 
         cur = con.cursor()
 
@@ -1575,8 +1600,7 @@ class CmdApp(cmd2.Cmd):
     # parser for stat command
     parser_stat = argparse.ArgumentParser()
     parser_stat.add_argument(
-        "-l", "--long", action="store_true", dest="long",
-        help="show more information"
+        "-l", "--long", action="store_true", dest="long", help="show more information"
     )
 
     @cmd2.with_argparser(parser_stat)
@@ -1614,8 +1638,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "PIC"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "PIC"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1628,8 +1651,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "PIC"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "PIC"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1642,8 +1664,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "PIC"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "PIC"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1656,8 +1677,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "PIC"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "PIC"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1683,9 +1703,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "FI"),
+                "  and (pilotFunction = ? or pilotFunction = ?)",
+                (
+                    start_date.strftime("%Y-%m-%d"),
+                    today.strftime("%Y-%m-%d"),
+                    "FI",
+                    "FE",
+                ),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1697,9 +1721,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "FI"),
+                "  and (pilotFunction = ? or pilotFunction = ?)",
+                (
+                    start_date.strftime("%Y-%m-%d"),
+                    today.strftime("%Y-%m-%d"),
+                    "FI",
+                    "FE",
+                ),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1711,9 +1739,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "FI"),
+                "  and (pilotFunction = ? or pilotFunction = ?)",
+                (
+                    start_date.strftime("%Y-%m-%d"),
+                    today.strftime("%Y-%m-%d"),
+                    "FI",
+                    "FE",
+                ),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1725,9 +1757,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "FI"),
+                "  and (pilotFunction = ? or pilotFunction = ?)",
+                (
+                    start_date.strftime("%Y-%m-%d"),
+                    today.strftime("%Y-%m-%d"),
+                    "FI",
+                    "FE",
+                ),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1735,7 +1771,7 @@ class CmdApp(cmd2.Cmd):
 
             self.poutput(
                 col.Fore.GREEN
-                + f"{'FI':18}"
+                + f"{'FI/FE':18}"
                 + col.Style.RESET_ALL
                 + s1
                 + "  "
@@ -1753,12 +1789,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and (pilotFunction = ? or pilotFunction = ?)",
+                "  and (pilotFunction = ? or pilotFunction = ? or pilotFunction = ?)",
                 (
                     start_date.strftime("%Y-%m-%d"),
                     today.strftime("%Y-%m-%d"),
                     "PIC",
                     "FI",
+                    "FE",
                 ),
             )
 
@@ -1771,12 +1808,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and (pilotFunction = ? or pilotFunction = ?)",
+                "  and (pilotFunction = ? or pilotFunction = ? or pilotFunction = ?)",
                 (
                     start_date.strftime("%Y-%m-%d"),
                     today.strftime("%Y-%m-%d"),
                     "PIC",
                     "FI",
+                    "FE",
                 ),
             )
 
@@ -1789,12 +1827,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and (pilotFunction = ? or pilotFunction = ?)",
+                "  and (pilotFunction = ? or pilotFunction = ? or pilotFunction = ?)",
                 (
                     start_date.strftime("%Y-%m-%d"),
                     today.strftime("%Y-%m-%d"),
                     "PIC",
                     "FI",
+                    "FE",
                 ),
             )
 
@@ -1807,12 +1846,13 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
-                "  and (pilotFunction = ? or pilotFunction = ?)",
+                "  and (pilotFunction = ? or pilotFunction = ? or pilotFunction = ?)",
                 (
                     start_date.strftime("%Y-%m-%d"),
                     today.strftime("%Y-%m-%d"),
                     "PIC",
                     "FI",
+                    "FE",
                 ),
             )
 
@@ -1840,8 +1880,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "Dual"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "Dual"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1854,8 +1893,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "Dual"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "Dual"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1868,8 +1906,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "Dual"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "Dual"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1882,8 +1919,7 @@ class CmdApp(cmd2.Cmd):
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?"
                 "  and pilotFunction = ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d"), "Dual"),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "Dual"),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1909,8 +1945,7 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d")),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1922,8 +1957,7 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d")),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1935,8 +1969,7 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d")),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -1948,8 +1981,7 @@ class CmdApp(cmd2.Cmd):
                 "select offblock, onblock, "
                 "landingsDay+landingsNight from flights "
                 "where flightdate >= ? and  flightdate <= ?",
-                (start_date.strftime("%Y-%m-%d"),
-                 today.strftime("%Y-%m-%d")),
+                (start_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")),
             )
 
             hrs, mins, ldgs = calc_sums()
@@ -2015,8 +2047,7 @@ class CmdApp(cmd2.Cmd):
 
         def check_ninety_day(_date, _cur, _class):
             # start checking from yesterday and then move forward day after day
-            d = dt.datetime.today().replace(hour=0, minute=0,
-                                            second=0, microsecond=0)
+            d = dt.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
             d += relativedelta(days=-1)
 
             while True:
@@ -2123,9 +2154,7 @@ class CmdApp(cmd2.Cmd):
         # check 90 day rule for class ratings
         for rating in rating_list:
             s1 = ""
-            check_result, expiration_date = check_ninety_day(date,
-                                                             cur,
-                                                             rating["title"])
+            check_result, expiration_date = check_ninety_day(date, cur, rating["title"])
             s2 = "  " + expiration_date.strftime("%d.%m.%Y")
             if check_result == "valid":
                 s1 = (
@@ -2248,8 +2277,7 @@ class CmdApp(cmd2.Cmd):
 
         # get all the rest
         cur.execute(
-            "select title, expirationDate, "
-            "warningPeriod from ratings where type='O'"
+            "select title, expirationDate, " "warningPeriod from ratings where type='O'"
         )
 
         res = cur.fetchall()
@@ -2393,8 +2421,7 @@ class CmdApp(cmd2.Cmd):
         if not args.id:
             cur.execute(
                 "select * from airports where name like ? or icaoId like ?",
-                ("%" + args.search_string[0] + "%", "%" +
-                 args.search_string[0] + "%"),
+                ("%" + args.search_string[0] + "%", "%" + args.search_string[0] + "%"),
             )
         else:
             cur.execute(
