@@ -1,6 +1,6 @@
 [project]
 name = "pyflightlog"
-version = "0.3.0"
+version = "0.4.0"
 description = ""
 authors = [{ name = "Fabian Bühler", email = "fabian.buehler@fdtk.de" }]
 requires-python = ">=3.11.2, <3.13"
